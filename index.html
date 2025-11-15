@@ -200,6 +200,8 @@
             margin: 10px 0;
             font-size: 14px;
             border: 1px solid #fcc;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
         /* iOS Safari 优化 */
@@ -377,8 +379,16 @@
             document.getElementById('sendBtn').disabled = true;
 
             try {
+                console.log('发送请求到:', API_URL);
+                console.log('请求内容:', {
+                    model: MODEL,
+                    max_tokens: 4096,
+                    messages: conversationHistory
+                });
+
                 const response = await fetch(API_URL, {
                     method: 'POST',
+                    mode: 'cors',
                     headers: {
                         'Content-Type': 'application/json',
                         'x-api-key': API_KEY,
@@ -391,15 +401,25 @@
                     })
                 });
 
+                console.log('响应状态:', response.status);
                 hideLoading();
 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.error?.message || `请求失败 (${response.status})`);
+                    const errorText = await response.text();
+                    console.error('错误响应:', errorText);
+                    let errorData;
+                    try {
+                        errorData = JSON.parse(errorText);
+                    } catch (e) {
+                        errorData = { error: { message: errorText } };
+                    }
+                    throw new Error(errorData.error?.message || `请求失败 (HTTP ${response.status}): ${errorText.substring(0, 100)}`);
                 }
 
                 const data = await response.json();
-                const assistantMessage = data.content[0].text;
+                console.log('API 响应:', data);
+
+                const assistantMessage = data.content?.[0]?.text || data.message || '抱歉，无法获取回复';
 
                 conversationHistory.push({
                     role: 'assistant',
@@ -410,8 +430,19 @@
 
             } catch (error) {
                 hideLoading();
-                showError(error.message);
-                console.error('Error:', error);
+                console.error('详细错误信息:', error);
+
+                let errorMsg = error.message;
+
+                // 网络错误
+                if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+                    errorMsg = '网络连接失败，请检查：\n1. 网络连接是否正常\n2. API 地址是否正确\n3. 是否存在跨域限制\n\n技术详情: ' + error.message;
+                }
+
+                showError(errorMsg);
+
+                // 移除最后一条用户消息，因为请求失败了
+                conversationHistory.pop();
             } finally {
                 document.getElementById('sendBtn').disabled = false;
                 input.focus();
