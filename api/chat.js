@@ -23,7 +23,8 @@ export default async function handler(req, res) {
     const API_KEY = process.env.CLAUDE_API_KEY || 'sk-a97d8f6c04734278b2ea0359f734b461';
 
     // 使用正确的 Claude 4.5 模型名称（连字符，不是点号）
-    const MODEL = 'claude-sonnet-4-5-20250929';
+    // 注意：某些 API 可能需要使用 -thinking 后缀的版本才能获得真正的 4.5
+    const MODEL = 'claude-sonnet-4-5-20250929-thinking';
 
     console.log('代理请求到:', API_URL);
     console.log('使用模型:', MODEL);
