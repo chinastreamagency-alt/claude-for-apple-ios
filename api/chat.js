@@ -22,11 +22,23 @@ export default async function handler(req, res) {
     const API_URL = process.env.CLAUDE_API_URL || 'https://cc.585dg.com/v1/messages';
     const API_KEY = process.env.CLAUDE_API_KEY || 'sk-a97d8f6c04734278b2ea0359f734b461';
 
-    // 强制使用 Claude 4.5 模型
-    const MODEL = 'claude-sonnet-4-5-20250929';
+    // 尝试多个可能的 Claude 4.5 模型名称
+    const POSSIBLE_MODELS = [
+      'claude-sonnet-4.5-20250929',
+      'claude-4.5-sonnet',
+      'claude-4-5-sonnet-20250929',
+      'claude-sonnet-4-5-20250929'
+    ];
+
+    const MODEL = POSSIBLE_MODELS[0]; // 先尝试第一个
 
     console.log('代理请求到:', API_URL);
     console.log('使用模型:', MODEL);
+    console.log('完整请求体:', JSON.stringify({
+      model: MODEL,
+      max_tokens: max_tokens || 4096,
+      messages: messages
+    }, null, 2));
 
     // 转发请求到第三方 API
     const response = await fetch(API_URL, {
@@ -45,6 +57,7 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
+    console.log('完整 API 响应:', JSON.stringify(data, null, 2));
     console.log('API 返回的模型:', data.model);
 
     if (!response.ok) {
