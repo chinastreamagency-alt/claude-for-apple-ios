@@ -16,13 +16,17 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages, model, max_tokens } = req.body;
+    const { messages, max_tokens } = req.body;
 
     // 从环境变量获取 API 配置
     const API_URL = process.env.CLAUDE_API_URL || 'https://cc.585dg.com/v1/messages';
     const API_KEY = process.env.CLAUDE_API_KEY || 'sk-a97d8f6c04734278b2ea0359f734b461';
 
+    // 强制使用 Claude 4.5 模型
+    const MODEL = 'claude-sonnet-4-5-20250929';
+
     console.log('代理请求到:', API_URL);
+    console.log('使用模型:', MODEL);
 
     // 转发请求到第三方 API
     const response = await fetch(API_URL, {
@@ -33,13 +37,15 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: model || 'claude-sonnet-4-5-20250929',
+        model: MODEL,
         max_tokens: max_tokens || 4096,
         messages: messages
       })
     });
 
     const data = await response.json();
+
+    console.log('API 返回的模型:', data.model);
 
     if (!response.ok) {
       console.error('API 错误:', data);
