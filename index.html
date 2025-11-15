@@ -274,9 +274,8 @@
     </div>
 
     <script>
-        // API 配置
-        const API_URL = 'https://cc.585dg.com/v1/messages';
-        const API_KEY = 'sk-a97d8f6c04734278b2ea0359f734b461';
+        // API 配置 - 使用本地代理而不是直接调用第三方 API
+        const API_URL = '/api/chat';
         const MODEL = 'claude-sonnet-4-5-20250929';
 
         let conversationHistory = [];
@@ -379,7 +378,7 @@
             document.getElementById('sendBtn').disabled = true;
 
             try {
-                console.log('发送请求到:', API_URL);
+                console.log('发送请求到代理:', API_URL);
                 console.log('请求内容:', {
                     model: MODEL,
                     max_tokens: 4096,
@@ -388,11 +387,8 @@
 
                 const response = await fetch(API_URL, {
                     method: 'POST',
-                    mode: 'cors',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': API_KEY,
-                        'anthropic-version': '2023-06-01'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         model: MODEL,

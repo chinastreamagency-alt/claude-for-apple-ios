@@ -40,7 +40,19 @@
 2. 登录 [Vercel](https://vercel.com)
 3. 点击 "Import Project"
 4. 选择你 fork 的仓库
-5. 点击 "Deploy"
+5. **配置环境变量**（重要）：
+   - `CLAUDE_API_URL`: 你的 Claude API 地址（例如：https://cc.585dg.com/v1/messages）
+   - `CLAUDE_API_KEY`: 你的 API Key
+6. 点击 "Deploy"
+
+### 环境变量配置
+
+在 Vercel 项目设置中添加以下环境变量：
+
+```
+CLAUDE_API_URL=https://cc.585dg.com/v1/messages
+CLAUDE_API_KEY=你的API密钥
+```
 
 ## 🎯 功能说明
 
